@@ -38,6 +38,12 @@ public class Pedido {
 	private List<Oferta> ofertas;
 
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	@Enumerated(EnumType.STRING)
 	private StatusPedido status;
 	
