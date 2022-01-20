@@ -25,11 +25,9 @@ public class PedidosRest {
 		
 		Sort sort = Sort.by("id").descending();
 		// O primeiro parâmetro é a página inicial. O índice 0 corresponde à página 1.
-		PageRequest paginacao = PageRequest.of(0, 2, sort);
+		PageRequest paginacao = PageRequest.of(0, 10, sort);
 		
-		List<Pedido> pedidosPendentes = pedidoRepository.findByStatus(StatusPedido.AGUARDANDO, paginacao );
-		
-		return pedidosPendentes;
+		return pedidoRepository.findByStatus(StatusPedido.AGUARDANDO, paginacao );
 
 	}
 

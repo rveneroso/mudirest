@@ -10,7 +10,6 @@ public class OfertaController {
 	
 	@GetMapping
 	public String getFormularioParaOfertas() {
-		System.err.println("Passou em OfertaController");
 		return "oferta/home";
 	}
 
