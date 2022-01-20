@@ -22,10 +22,18 @@
 							<div class="mb-4">
 								<textarea disabled="disabled" class="form-control" >{{pedido.descricao}}</textarea>
 							</div>
-							<div class="row">
-								<div class="col-md-5">Valor: <input class="form-control" v-model="pedido.valorNegociado"/> </div>
-								<div class="col-md-7">Data da entrega: <input class="form-control" v-model="pedido.dataDaEntrega"/></div>
-							</div>	
+								<div class="col-md-5">
+									Valor: <input v-bind:class="{'is-invalid':pedido.erros.valor !==''}" class="form-control" v-model="pedido.valorNegociado"/>
+									<div v-if="pedido.erros.valor" class="invalid-feedback" >
+										{{pedido.erros.valor}}
+									</div>
+								</div>
+								<div class="col-md-7">
+									Data da entrega: <input v-bind:class="{'is-invalid':pedido.erros.dataDaEntrega !==''}" class="form-control" v-model="pedido.dataDaEntrega"/>
+									<div v-if="pedido.erros.dataDaEntrega" class="invalid-feedback">
+										{{pedido.erros.dataDaEntrega}}
+									</div>
+								</div>
 							<div class="mt-3">
 								<label>Comentário</label>
 								<textarea class="form-control" v-model="pedido.comentario"></textarea>
@@ -45,35 +53,51 @@
 			</div>
 		</div>
 		<script>
-		function onLoad() {
-			var app = new Vue(
-			{
-				el : '#ofertas',
-				data : {
-					pedidos : []
-				},
-				mounted () {
-					axios
-				      .get('http://localhost:8080/api/pedidos/aguardando')
-				      .then(response => {
-				    	  response.data.forEach(pedido => pedido.ofertaEnviada = false)
-				    	  this.pedidos = response.data
-				      })
-				},
-				methods: {
-					enviarOferta: function(pedido) {
+			function onLoad() {
+				var app = new Vue(
+				{
+					el : '#ofertas',
+					data : {
+						pedidos : []
+					},
+					mounted () {
 						axios
-					      .post('http://localhost:8080/api/ofertas', {
-					    	  pedidoId: pedido.id,
-					    	  valor: pedido.valorNegociado,
-					    	  dataDaEntrega: pedido.dataDaEntrega,
-					    	  comentario: pedido.comentario
-					      })
-					      .then(response => pedido.ofertaEnviada = true);
+					      .get('http://localhost:8080/api/pedidos/aguardando')
+					      .then(response => {
+					    	  	response.data.forEach(pedido =>{
+					    	  		pedido.ofertaEnviada = false;
+					    	  		pedido.erros = {
+					    	  			valor: '',
+					    	  			dataDaEntrega: ''
+					    	  		}
+					    	  	})
+					    	 	this.pedidos = response.data
+					    	})
+					},
+					methods: {
+						enviarOferta: function(pedido) {
+							pedido.erros = {
+			    	  			valor: '',
+			    	  			dataDaEntrega: ''
+			    	  		};
+							
+							axios
+						      .post('http://localhost:8080/api/ofertas', {
+						    	  pedidoId: pedido.id,
+						    	  valor: pedido.valorNegociado,
+						    	  dataDaEntrega: pedido.dataDaEntrega,
+						    	  comentario: pedido.comentario
+						      })
+						      .then(response => pedido.ofertaEnviada = true)
+						      .catch(error => {
+						    	  error.response.data.errors.forEach(error => {
+						    		  pedido.erros[error.field] = error.defaultMessage;
+						    	  })
+						      })
+						} 
 					}
-				}
-			});
-		}
+				});
+			}
 		</script>
 		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
